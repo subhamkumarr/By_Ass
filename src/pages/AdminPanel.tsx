@@ -98,6 +98,8 @@ const convertProfileToFormValues = (profile: Profile): FormValues => ({
   contactInfo: profile.contactInfo || { email: '', phone: '' },
 });
 
+
+
 const AdminPanel: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
@@ -136,6 +138,7 @@ const AdminPanel: React.FC = () => {
 
   const formik = useFormik<FormValues>({
     initialValues: selectedProfile ? convertProfileToFormValues(selectedProfile) : initialValues,
+    enableReinitialize: true,
     validationSchema,
     onSubmit: async (values: FormValues, helpers: FormikHelpers<FormValues>) => {
       try {
@@ -144,7 +147,7 @@ const AdminPanel: React.FC = () => {
             id: selectedProfile.id,
             data: {
               ...values,
-              id: selectedProfile.id
+              // id: selectedProfile.id
             }
           });
         } else {
@@ -180,6 +183,7 @@ const AdminPanel: React.FC = () => {
     profile.address.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
     profile.address.country.toLowerCase().includes(searchQuery.toLowerCase())
   );
+   const [interestInput, setInterestInput] = useState('');
 
   if (isLoading) {
     return (
@@ -194,6 +198,8 @@ const AdminPanel: React.FC = () => {
       </Box>
     );
   }
+
+ 
 
   return (
     <Box sx={{ 
@@ -507,6 +513,51 @@ const AdminPanel: React.FC = () => {
                   sx={{ mb: 2 }}
                 />
               </Grid>
+<Grid item xs={12}>
+  <Typography variant="subtitle1" color="primary" gutterBottom>
+    Interests
+  </Typography>
+  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+    {(formik.values.interests ?? []).map((interest, idx) => (
+      <Chip
+        key={idx}
+        label={interest}
+        onDelete={() => {
+          const newInterests = [...(formik.values.interests ?? [])];
+          newInterests.splice(idx, 1);
+          formik.setFieldValue('interests', newInterests);
+        }}
+        color="primary"
+        variant="outlined"
+      />
+    ))}
+  </Box>
+  <TextField
+    fullWidth
+    label="Add Interest"
+    value={interestInput}
+    onChange={(e) => setInterestInput(e.target.value)}
+    onKeyDown={(e) => {
+      if (
+        (e.key === 'Enter' || e.key === ',') &&
+        interestInput.trim() !== ''
+      ) {
+        e.preventDefault();
+        if (
+          !(formik.values.interests ?? []).includes(interestInput.trim())
+        ) {
+          formik.setFieldValue('interests', [
+            ...(formik.values.interests ?? []),
+            interestInput.trim(),
+          ]);
+        }
+        setInterestInput('');
+      }
+    }}
+    helperText="Type an interest and press Enter or comma"
+    sx={{ mb: 2 }}
+  />
+</Grid>
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom color="primary">
                   Address

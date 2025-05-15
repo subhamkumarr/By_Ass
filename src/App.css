@@ -1,6 +1,8 @@
 .App {
   text-align: center;
 }
+@import "leaflet/dist/leaflet.css";
+
 
 .App-logo {
   height: 40vmin;
